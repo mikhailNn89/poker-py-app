@@ -2,6 +2,8 @@
 
 Client-server Python application with GUI for the Texas Holdem Poker Game
 
+Developed in NIIT Python course, 2018
+
 ## Installing
 
 ## User authorization

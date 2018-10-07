@@ -13,4 +13,4 @@ script: python test.py
 #    skip_cleanup: true
 
 on:
-    branch: master
+    branch: develop

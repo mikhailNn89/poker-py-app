@@ -1,5 +1,18 @@
 # poker-py-app
-123
 
-# poker-py-app
-555
+Client-server Python application for the Texas Holdem Poker Game
+The client is implemented with GUI
+
+## Installing
+
+## User authorization
+
+## Running the tests
+
+## Built With
+
+Python 3.7
+
+## Pull requests
+
+

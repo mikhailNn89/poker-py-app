@@ -6,7 +6,7 @@ class Test1(unittest.TestCase):
         print('Test #1 before')
     
     def test1(self):
-        print('Test #1 begining')
+        print('Test #1 beginning')
         self.assertEqual(20,20)
         
     def tearDown(self):

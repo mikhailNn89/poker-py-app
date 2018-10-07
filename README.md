@@ -1,6 +1,7 @@
 # poker-py-app
 
 Client-server Python application for the Texas Holdem Poker Game
+
 The client is implemented with GUI
 
 ## Installing

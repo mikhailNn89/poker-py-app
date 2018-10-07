@@ -1,8 +1,6 @@
 # poker-py-app
 
-Client-server Python application for the Texas Holdem Poker Game
-
-The client is implemented with GUI
+Client-server Python application with GUI for the Texas Holdem Poker Game
 
 ## Installing
 
@@ -10,10 +8,14 @@ The client is implemented with GUI
 
 ## Running the tests
 
+Test classes are being developed in test.py
+
 ## Built With
 
-Python 3.7
+Python 3.6 (supported by Travis CI)
 
 ## Pull requests
+
+Are made in the develop branch
 
 

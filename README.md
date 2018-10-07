@@ -12,10 +12,10 @@ Test classes are being developed in test.py
 
 ## Built With
 
-Python 3.6 (supported by Travis CI)
+Python 3.6 (supported by the Travis CI)
 
 ## Pull requests
 
-Are made in the develop branch
+Are made in the develop branch and checked by the Travis CI
 
 

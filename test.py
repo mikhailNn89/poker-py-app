@@ -3,10 +3,10 @@ import sys
 
 class Test1(unittest.TestCase):
     def setUp(self):
-        print('Test #1 begin')
+        print('Test #1 before')
     
     def test1(self):
-        print('Inside test #1')
+        print('Test #1 begining')
         self.assertEqual(20,20)
         
     def tearDown(self):

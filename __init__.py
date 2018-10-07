@@ -1,1 +1,1 @@
-# Init
+print('Init')

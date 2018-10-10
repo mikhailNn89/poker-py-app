@@ -4,12 +4,12 @@ from tkinter import *
 from tkinter.messagebox import *
 from Table_py import *
 from PIL import Image, ImageTk #pip install pillow
-
+from time import sleep
 
 form1 = tkinter.Tk()
 form1.title('form1')
 form1.resizable(width=FALSE, height=FALSE)
-form1.geometry('1631x662+100+100')
+form1.geometry('1300x662+100+100')
 image = Image.open("image//suit.jpg")
 suit = ImageTk.PhotoImage(image)
 
@@ -28,12 +28,13 @@ server_port.place(relx=0.40, rely=0.05, relwidth=0.04, relheight=0.03)
 user_connect = Button(text='connect', command=connect_click)
 user_connect.place(relx=0.45, rely=0.05, relwidth=0.04, relheight=0.03)
 
+
 def add_card_on_center(master, delta):
         bank = Button(text='bank of casino')
         bank.place(relx=0.3, rely=0.25, relwidth=0.09, relheight=0.03)
-        card = Button(text='card')
-        card.place(relx=delta+0.02, rely=0.31, relwidth=0.07, relheight=0.27)
-        cards_center.append(card)
+        card_server = Button(text='card')
+        card_server.place(relx=delta+0.02, rely=0.31, relwidth=0.04, relheight=0.13)
+        cards_center.append(card_server)
         return cards_center
 
 
@@ -80,8 +81,9 @@ shift = 0
 
 x_default = 0.02
 y_default = 0.75
-user_name = {'1': 'player 1', '2': 'user 2', '3': 'player 3', '4': 'player 4', '5': 'player 5','6': 'player 6', '7':
-            'player 7' }
+user_name = {'1': 'player 1', '2': 'user 2', '3': 'player 3', '4': 'player 4', '5': 'player 5', '6': 'player 6', '7':
+                    'player 7' }
+
 player_places.append(place_for_user(user_name.get('1'), x_default, y_default-0.6))
 player_places.append(place_for_user(user_name.get('2'), x_default, y_default-0.3))
 player_places.append(place_for_user(user_name.get('3'), x_default, y_default))
@@ -90,5 +92,26 @@ player_places.append(place_for_user(user_name.get('5'), x_default+0.6, y_default
 player_places.append(place_for_user(user_name.get('6'), x_default+0.6, y_default-0.3))
 player_places.append(place_for_user(user_name.get('7'), x_default+0.6, y_default-0.6))
 
+#example for add some cards for the second player
+# this wil be dict, where number of range of card will be map to face's card
+image = Image.open("image//king_black.jpg")
+suit3 = ImageTk.PhotoImage(image)
+image = Image.open("image//five_red.jpg")
+suit4 = ImageTk.PhotoImage(image)
 
+player_places[1].get('card1').config(image=suit3)
+player_places[1].get('card2').config(image=suit4)
+card = (croupier.get('cards'))[0]
+card.config(image=suit3)
+
+form1.mainloop()
+
+#case with add new card in dynamic
+#this code will be work only with new thred
+# will be tinking
+sleep(0.01)
+cards_center = add_card_on_center(form1, size+0.02)
+card = (croupier.get('cards'))[1]
+card.config(image=suit3)
+print('ok')
 form1.mainloop()

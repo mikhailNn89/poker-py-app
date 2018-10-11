@@ -4,9 +4,9 @@ import sys
 from t_class import *
 
 # Arseny: did you run this? What is 'self'? What for is this function?
-def test_myTest(self):
+def test_myTest():
     print('Test #0')
-    self.assertEqual(20,20)
+    assert 'foo'.upper() == 'FOO'
 
 class Test1(unittest.TestCase):
     def setUp(self):

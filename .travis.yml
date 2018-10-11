@@ -4,8 +4,10 @@ python: 3.6
 install:
   - pip install -r requirements.txt
   - pip install pytest
+#  - pip install Pillow
 
-script: python test.py
+#script: python test.py
+script: py.test -v test.py
 
 # deploy:
 #  - provider: pages

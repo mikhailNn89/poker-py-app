@@ -78,11 +78,6 @@ class Table:
 		
 	def create_game(self):
 		#Если се игроки согласны играть то рассылаем
-		"""
-		for i in players:
-			if players[i].
-		if check==True:
-		"""
 		for i in self.players:
 			if self.players[i].game_status=="ready":
 				continue
@@ -104,6 +99,7 @@ class Table:
 				id=self.players[i].id
 				break
 		for i in self.players:
+			self.players[i].game_status="playing"
 			self.players[i].conn.send(pickle.dumps({'action':'step','id':id}))
 	def next_step(self):
 		id=0
@@ -179,8 +175,9 @@ table1=Table() #создаём стол
 def listen(name,conn):
 	print("Client connected");
 	playerid=table1.get_next_id()
-	table1.add_player(Player(name,conn,playerid))
-	conn.send( pickle.dumps({'status':'ok', 'count':playerid}) ) 
+	player=Player(name,conn,playerid)
+	table1.add_player(player)
+	conn.send( pickle.dumps({'status':'ok', 'yourid':playerid}) ) 
 	#если игроков два и более, то расслылать приглашение для начала игры
 	if table1.get_count() > 1:
 		for i in table1.players:
@@ -190,17 +187,15 @@ def listen(name,conn):
 		print(obj)
 		##for i in listeners.keys():
 		if obj['action']=="start?" and obj['answer']==True:
-			#player.game_status="wait"
+			player.game_status="wait"
 			table1.create_game()
 		elif obj['action']=="move":
 			table1.step(playerid,obj)
 		elif obj['action']=="ok":
 			check=True
-			"""
 			for i in table1.players:
-				if table1.players[1]!="playing":
+				if table1.players[i].game_status!="ready":
 					check=False
-			"""
 			if check==True:
 				table1.start_game();
 			 

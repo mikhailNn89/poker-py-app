@@ -1,5 +1,5 @@
 
-class TestedClass(object):
+class MyClass1(object):
     def __init__(self):
         self.val = 5
 	

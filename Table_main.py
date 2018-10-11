@@ -6,6 +6,10 @@ from Table_py import *
 from PIL import Image, ImageTk #pip install pillow
 from time import sleep
 
+
+# Arseny: too many global variables
+# Arseny: you will got problem on debug
+# Arseny: pack your variables in one class or object for state
 form1 = tkinter.Tk()
 form1.title('form1')
 form1.resizable(width=FALSE, height=FALSE)
@@ -13,6 +17,9 @@ form1.geometry('1300x662+100+100')
 image = Image.open("image//suit.jpg")
 suit = ImageTk.PhotoImage(image)
 
+# Arseny: buf1, buf2, buf3 what is this?
+# Arseny: the names of variables don't mean anything
+# Arseny: I can't reach their purpose looking on the name. It's wrong
 buf1 = StringVar()
 buf2 = StringVar()
 buf3 = StringVar()
@@ -64,10 +71,14 @@ def place_for_user(user, x, y):
     user = Button(text='user '+user)
     user.place(relx=x, rely=y+0.19, relwidth=0.09, relheight=0.03)
 
+    # Arseny: why do you use `dict` for scructs in your code?
+    # Arseny: you should use object for this
     return {'bank': bank, 'raise_bet': raise_bet, 'bet': bet_bank, 'card1': card1,
             'card2': card2, 'check': check, 'user': user}
 
 
+# Arseny: you have section global variables on the top of code
+# Arseny: and then new section there. Thats hard to read and debug
 cards_center = []
 croupier = {'bank': 0, 'cards': cards_center}
 player_places = []
@@ -94,6 +105,8 @@ player_places.append(place_for_user(user_name.get('7'), x_default+0.6, y_default
 
 #example for add some cards for the second player
 # this wil be dict, where number of range of card will be map to face's card
+
+# Arseny: bad names again. Why not `suite_bking`? Why `suit3`?
 image = Image.open("image//king_black.jpg")
 suit3 = ImageTk.PhotoImage(image)
 image = Image.open("image//five_red.jpg")

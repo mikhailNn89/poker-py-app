@@ -5,7 +5,8 @@ install:
   - pip install -r requirements.txt
   - pip install pytest
 
-script: python test.py
+#script: python test.py
+script: py.test -v test.py
 
 # deploy:
 #  - provider: pages

@@ -6,6 +6,7 @@ from Table_py import *
 from PIL import Image, ImageTk #pip install pillow
 from time import sleep
 
+
 # Arseny: too many global variables
 # Arseny: you will got problem on debug
 # Arseny: pack your variables in one class or object for state

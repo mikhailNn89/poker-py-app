@@ -3,7 +3,7 @@ import pytest
 import sys
 from t_class import *
 from Client import *
-from Table_main import *
+#from Table_main import *
 from Table_py import *
 
 # Arseny: did you run this? What is 'self'? What for is this function?

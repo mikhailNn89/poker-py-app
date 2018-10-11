@@ -4,7 +4,7 @@ import sys
 from t_class import *
 
 # Arseny: did you run this? What is 'self'? What for is this function?
-def test_myTest():
+def test_myTest(self):
     print('Test #0')
     self.assertEqual(20,20)
 

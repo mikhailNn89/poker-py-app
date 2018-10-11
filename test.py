@@ -1,7 +1,7 @@
 import unittest
 import pytest
 import sys
-
+from t_class import *
 
 # Arseny: did you run this? What is 'self'? What for is this function?
 def test_myTest():
@@ -15,6 +15,11 @@ class Test1(unittest.TestCase):
     def test1(self):
         print('Test #1 beginning')
         self.assertEqual(20,20)
+        
+    def test2(self):
+        print('Test #2 beginning')
+        obj = t_class()
+        self.assertEqual(obj.foo(),7)    
         
     def tearDown(self):
         print('Test #1 end')    

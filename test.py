@@ -2,6 +2,7 @@ import unittest
 import pytest
 import sys
 
+# Arseny: did you run this? What is 'self'? What for is this function?
 def test_myTest():
     print('Test #0 beginning')
     self.assertEqual(20,20)

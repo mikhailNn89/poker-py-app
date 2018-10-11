@@ -18,7 +18,7 @@ class Test1(unittest.TestCase):
         
     def test2(self):
         print('Test #2')
-        obj = TestedClass()
+        obj = MyClass1()
         self.assertEqual(obj.foo(),7)    
         
     def tearDown(self):

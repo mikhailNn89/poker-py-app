@@ -10,7 +10,7 @@ def test_myTest():
 
 class Test1(unittest.TestCase):
     def setUp(self):
-        print('Test #1 before')
+        print('Test before\n')
     
     def test1(self):
         print('Test #1 beginning')
@@ -22,7 +22,7 @@ class Test1(unittest.TestCase):
         self.assertEqual(obj.foo(),7)    
         
     def tearDown(self):
-        print('Test #1 end')    
+        print('Test end\n')    
         
 if __name__ == '__main__':
     unittest.main()        

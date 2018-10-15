@@ -6,7 +6,7 @@ import os
 
 class GUI:
     def __init__(self, form):
-	THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
+	      THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
         self.form1 = form
         self.form1.title('form1')
         self.form1.resizable(width=FALSE, height=FALSE)
@@ -32,17 +32,17 @@ class GUI:
         self.store_image = []
         self.player_places = []
 		
-	def get_image(self, suit, name):
+	  def get_image(self, suit, name):
         self.store_image.append(ImageTk.PhotoImage(Image.open(os.path.join('image', 'cards', suit, name + '.jpg'))))
         return self.store_image[len(self.store_image)-1]
 		
-	def set_card_player(self, number,):
-            pass
+	  def set_card_player(self, number,):
+        pass
 			
-	def update_bank_croupier(self, data):
+	  def update_bank_croupier(self, data):
         self.croupier.get('bank')['text'] = data
 		
-	def add_card_on_center(self, suit, name):
+	  def add_card_on_center(self, suit, name):
         #last number is start 'x'
         delta = (len(self.croupier.get('cards')) * 0.03) + 0.25
         self.bank.place(relx=0.3, rely=0.25, relwidth=0.09, relheight=0.03)
@@ -52,7 +52,7 @@ class GUI:
         (self.croupier.get('cards')).append(card_server)
         return self.croupier
 		
-	def place_for_user(self, user, x, y):
+	  def place_for_user(self, user, x, y):
         bank = Button(text="0")
         bank.place(relx=x, rely=y, relwidth=0.09, relheight=0.03)
         card1 = Button(text='card1', image=self.shirt)
@@ -72,7 +72,7 @@ class GUI:
         return {'bank': bank, 'raise_bet': raise_bet, 'bet': bet_bank, 'card1': card1,
                 'card2': card2, 'check': check, 'user': user, 'pass': pass_button}
 				
-	def setting_player_places(self):
+	  def setting_player_places(self):
         x_default = 0.02
         y_default = 0.75
         user_name = my_gui.user_name
@@ -84,27 +84,27 @@ class GUI:
         self.player_places.append(my_gui.place_for_user(user_name.get('6'), x_default + 0.6, y_default - 0.3))
         self.player_places.append(my_gui.place_for_user(user_name.get('7'), x_default + 0.6, y_default - 0.6))
 		
-	def set_card_one_player(self, position, suit1, name_card1, suit2, name_card2):
+	  def set_card_one_player(self, position, suit1, name_card1, suit2, name_card2):
         my_gui.player_places[1].get('card1').config(image=my_gui.get_image(suit1, name_card1))
         my_gui.player_places[1].get('card2').config(image=my_gui.get_image(suit2, name_card2))
 		
-	def change_croupier(self, bank, suit, name_card):
+	  def change_croupier(self, bank, suit, name_card):
         self.croupier.get('bank')['text'] = bank
         self.add_card_on_center(suit, name_card)
         return self.croupier
 		
-	def change_button_player(self, position, flag):
+	  def change_button_player(self, position, flag):
         #disabled on default setting
         status = 'disable'
         if flag == TRUE:
             status = 'active'
 			
-		(self.player_places[position].get('bet'))['state'] = status
+		    (self.player_places[position].get('bet'))['state'] = status
         (self.player_places[position].get('raise_bet'))['state'] = status
         (self.player_places[position].get('pass'))['state'] = status
         (self.player_places[position].get('check'))['state'] = status
 		
-	def change_bet_player(self,position, bet):
+	  def change_bet_player(self,position, bet):
         bank = (self.player_places[position].get('bank'))['text']
         if (int(bank) - int(bet)) > 0:
             (self.player_places[position].get('bet'))['text'] = bet
@@ -115,11 +115,11 @@ class GUI:
         if int(bank) > 0:
             (self.player_places[position].get('bank'))['text'] = (int(bank) - int(bet))
 			
-	def add_bank_player(self,position, summa):
+	  def add_bank_player(self,position, summa):
         if summa > 0:
             (self.player_places[position].get('bank'))['text'] = summa
 			
-	def change_name_user(self,position, name):
+	  def change_name_user(self,position, name):
         (self.player_places[position].get('user'))['text'] = name
 		
 root = Tk()
@@ -151,3 +151,9 @@ my_gui.change_bet_player(1, 10)
 
 
 root.mainloop()
+
+
+print("it never print")
+
+
+

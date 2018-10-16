@@ -1,6 +1,6 @@
-from tkinter import Tk, FALSE, Button
+from tkinter import Tk, FALSE, Button, StringVar
 import tkinter
-from Table_py import *
+from Client import *
 from PIL import Image, ImageTk #pip install pillow
 import os
 
@@ -10,16 +10,22 @@ class GUI:
         self.form1 = form
         self.form1.title('form1')
         self.form1.resizable(width=FALSE, height=FALSE)
-        self.form1.geometry('1300x662+100+100')
+        self.form1.geometry('1200x662+100+100')
         self.weigh_card = 0.046
         self.height_card = 0.13
-        self.user_name = tkinter.Entry(self.form1, textvariable=b'YOUR NAME')
+        line = StringVar()
+        line.set('Sergey')
+        self.user_name = tkinter.Entry(self.form1, textvariable=line)
         self.user_name.place(relx=0.20, rely=0.05, relwidth=0.07, relheight=0.03)
-        self.user_ip = tkinter.Entry(self.form1, textvariable='IP')
+        line2 = StringVar()
+        line2.set('127.0.0.1')
+        self.user_ip = tkinter.Entry(self.form1, textvariable=line2)
         self.user_ip.place(relx=0.30, rely=0.05, relwidth=0.06, relheight=0.03)
-        self.server_port = tkinter.Entry(self.form1, textvariable='PORT')
+        line3 = StringVar()
+        line3.set('8011')
+        self.server_port = tkinter.Entry(self.form1, textvariable=line3)
         self.server_port.place(relx=0.40, rely=0.05, relwidth=0.04, relheight=0.03)
-        self.user_connect = Button(text='connect', command=connect_click)
+        self.user_connect = Button(text='connect', command=self.connect_click)
         self.user_connect.place(relx=0.45, rely=0.05, relwidth=0.04, relheight=0.03)
         self.cards_center = []
         self.bank = Button(text='bank of casino')
@@ -61,11 +67,11 @@ class GUI:
         card2.place(relx=x + 0.05, rely=y + 0.04,  relwidth=self.weigh_card, relheight=self.height_card)
         bet_bank = Button(text='0', state='disable')
         bet_bank.place(relx=x + 0.11, rely=y + 0.02, relwidth=0.04, relheight=0.03)
-        raise_bet = Button(text='raise bet', command=raise_bet_click, state='disable')
+        raise_bet = Button(text='raise bet', command=self.raise_bet_click, state='disable')
         raise_bet.place(relx=x + 0.11, rely=y + 0.06, relwidth=0.04, relheight=0.03)
-        pass_button = Button(text='pass', command=pass_button_click, state='disable')
+        pass_button = Button(text='pass', command=self.pass_button_click, state='disable')
         pass_button.place(relx=x + 0.11, rely=y + 0.1, relwidth=0.04, relheight=0.03)
-        check = Button(text='check', command=check_click, state='disable')
+        check = Button(text='check', command=self.check_click, state='disable')
         check.place(relx=x + 0.11, rely=y + 0.14, relwidth=0.04, relheight=0.03)
         user = Button(text='user ' + user)
         user.place(relx=x, rely=y + 0.19, relwidth=0.09, relheight=0.03)
@@ -96,7 +102,7 @@ class GUI:
     def change_button_player(self, position, flag):
         #disabled on default setting
         status = 'disable'
-        if flag == TRUE:
+        if flag:
             status = 'active'
             
         (self.player_places[position].get('bet'))['state'] = status
@@ -121,7 +127,19 @@ class GUI:
             
     def change_name_user(self,position, name):
         (self.player_places[position].get('user'))['text'] = name
-        
+
+    def raise_bet_click(self):
+        pass
+
+    def check_click(self):
+        pass
+
+    def pass_button_click(self):
+        pass
+
+    def connect_click(self):
+        cl = Client(self.user_ip.get(), int(self.server_port.get()), self.user_name)
+
 root = Tk()
 my_gui = GUI(root)
 my_gui.shirt = my_gui.get_image('shirt', 'shirt')
@@ -139,7 +157,7 @@ cards_center = my_gui.change_croupier(100, 'joker', 'j_red')
 #add card from croupie
 cards_center = my_gui.change_croupier(1000, 'club', 'jack')
 #change state of button first player
-my_gui.change_button_player(1, TRUE)
+my_gui.change_button_player(1, True)
 #my_gui.change_button_player(1, FALSE) # example for disabled button for a player
 
 #cases of player

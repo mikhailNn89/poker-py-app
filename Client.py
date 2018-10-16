@@ -5,6 +5,7 @@ import pickle
 
 class Client(object):
     def __init__(self, ip, port, username):
+        print('Hello Client')
         self.my_socket = socket.socket()
         self.my_socket.connect((ip, port))
         self.my_socket.send(pickle.dumps({'name': username}))
@@ -68,4 +69,5 @@ def def_invite(players):
 
 
 if __name__ == '__main__':
-    a = Client('localhost', 8011, 'Sergey')
+    pass
+    #a = Client('localhost', 8011, 'Sergey')

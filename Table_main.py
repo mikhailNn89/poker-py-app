@@ -7,6 +7,7 @@ import os
 class GUI:
     def __init__(self, form):
         THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
+        self.myId = -100
         self.form1 = form
         self.form1.title('form1')
         self.form1.resizable(width=FALSE, height=FALSE)
@@ -30,7 +31,7 @@ class GUI:
         self.cards_center = []
         self.bank = Button(text='bank of casino')
         self.croupier = {'bank': self.bank, 'cards': self.cards_center}
-        self.user_name = {'1': 'player 1', '2': 'user 2', '3': 'player 3', '4': 'player 4', '5': 'player 5', '6': 'player 6',
+        self.players_name = {'1': 'player 1', '2': 'user 2', '3': 'player 3', '4': 'player 4', '5': 'player 5', '6': 'player 6',
                      '7':'player 7'}
         # name of cards 'suit', 'ace', 'king', 'queen', 'jack', '10', '9', '8', '7', '6', '5', '4''3''2''j_red', 'j_black'
         # suit of cards (FOLDERS) -'suit', 'joker', 'club', 'diamond', 'heart', 'spade'
@@ -82,13 +83,13 @@ class GUI:
         x_default = 0.02
         y_default = 0.75
         user_name = my_gui.user_name
-        self.player_places.append(my_gui.place_for_user(user_name.get('1'), x_default, y_default - 0.6))
-        self.player_places.append(my_gui.place_for_user(user_name.get('2'), x_default, y_default - 0.3))
-        self.player_places.append(my_gui.place_for_user(user_name.get('3'), x_default, y_default))
-        self.player_places.append(my_gui.place_for_user(user_name.get('4'), x_default + 0.3, y_default))
-        self.player_places.append(my_gui.place_for_user(user_name.get('5'), x_default + 0.6, y_default))
-        self.player_places.append(my_gui.place_for_user(user_name.get('6'), x_default + 0.6, y_default - 0.3))
-        self.player_places.append(my_gui.place_for_user(user_name.get('7'), x_default + 0.6, y_default - 0.6))
+        self.player_places.append(my_gui.place_for_user(self.players_name.get('1'), x_default, y_default - 0.6))
+        self.player_places.append(my_gui.place_for_user(self.players_name.get('2'), x_default, y_default - 0.3))
+        self.player_places.append(my_gui.place_for_user(self.players_name.get('3'), x_default, y_default))
+        self.player_places.append(my_gui.place_for_user(self.players_name.get('4'), x_default + 0.3, y_default))
+        self.player_places.append(my_gui.place_for_user(self.players_name.get('5'), x_default + 0.6, y_default))
+        self.player_places.append(my_gui.place_for_user(self.players_name.get('6'), x_default + 0.6, y_default - 0.3))
+        self.player_places.append(my_gui.place_for_user(self.players_name.get('7'), x_default + 0.6, y_default - 0.6))
         
     def set_card_one_player(self, position, suit1, name_card1, suit2, name_card2):
         my_gui.player_places[1].get('card1').config(image=my_gui.get_image(suit1, name_card1))
@@ -138,40 +139,40 @@ class GUI:
         pass
 
     def connect_click(self):
-        cl = Client(self.user_ip.get(), int(self.server_port.get()), self.user_name)
+        cl = Client(self.user_ip.get(), int(self.server_port.get()), self.user_name.get(), self)
 
 root = Tk()
 my_gui = GUI(root)
 my_gui.shirt = my_gui.get_image('shirt', 'shirt')
 my_gui.setting_player_places()
 
-# name of cards 'suit', 'ace', 'king', 'queen', 'jack', '10', '9', '8', '7', '6', '5', '4''3''2''j_red', 'j_black'
-# suit of cards (FOLDERS) -'suit', 'joker', 'club', 'diamond', 'heart', 'spade'
-
-# case of play
-
-#change cards of first player
-my_gui.set_card_one_player(1, 'diamond', 'queen', 'club', '2')
-#add card from croupie
-cards_center = my_gui.change_croupier(100, 'joker', 'j_red')
-#add card from croupie
-cards_center = my_gui.change_croupier(1000, 'club', 'jack')
-#change state of button first player
-my_gui.change_button_player(1, True)
-#my_gui.change_button_player(1, FALSE) # example for disabled button for a player
-
-#cases of player
-my_gui.change_name_user(1, "boris")
-
-my_gui.add_bank_player(1, 100)
-
-my_gui.change_bet_player(1, 10)
+## name of cards 'suit', 'ace', 'king', 'queen', 'jack', '10', '9', '8', '7', '6', '5', '4''3''2''j_red', 'j_black'
+## suit of cards (FOLDERS) -'suit', 'joker', 'club', 'diamond', 'heart', 'spade'
+#
+## case of play
+#
+##change cards of first player
+#my_gui.set_card_one_player(1, 'diamond', 'queen', 'club', '2')
+##add card from croupie
+#cards_center = my_gui.change_croupier(100, 'joker', 'j_red')
+##add card from croupie
+##cards_center = my_gui.change_croupier(1000, 'club', 'jack')
+##change state of button first player
+#my_gui.change_button_player(1, True)
+##my_gui.change_button_player(1, FALSE) # example for disabled button for a player
+#
+##cases of player
+#my_gui.change_name_user(1, "boris")
+#
+#my_gui.add_bank_player(1, 100)
+#
+#my_gui.change_bet_player(1, 10)
 
 
 root.mainloop()
 
 
-print("it never print")
+#print("it never print")
 
 
 

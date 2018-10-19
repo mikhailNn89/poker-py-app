@@ -38,7 +38,13 @@ class GUI:
         self.shirt = ""
         self.store_image = []
         self.player_places = []
-        
+
+    def setMyId(self, id):
+        self.myId = id
+
+    def getMyId(self):
+        return self.myId
+
     def get_image(self, suit, name):
         self.store_image.append(ImageTk.PhotoImage(Image.open(os.path.join('image', 'cards', suit, name + '.jpg'))))
         return self.store_image[len(self.store_image)-1]
@@ -48,7 +54,11 @@ class GUI:
             
     def update_bank_croupier(self, data):
         self.croupier.get('bank')['text'] = data
-        
+
+    def clean_card_on_center(self):
+        self.cards_center = []
+        self.croupier = {'bank': self.bank, 'cards': self.cards_center}
+
     def add_card_on_center(self, suit, name):
         #last number is start 'x'
         delta = (len(self.croupier.get('cards')) * 0.03) + 0.25
@@ -62,6 +72,9 @@ class GUI:
     def place_for_user(self, user, x, y):
         bank = Button(text="0")
         bank.place(relx=x, rely=y, relwidth=0.09, relheight=0.03)
+        #self.bank = tkinter.Entry(self.form1, textvariable="empty")
+        #self.bank.place(relx=x, rely=y, relwidth=0.09, relheight=0.03)
+
         card1 = Button(text='card1', image=self.shirt)
         card1.place(relx=x, rely=y + 0.04, relwidth=self.weigh_card, relheight=self.height_card)
         card2 = Button(text='card2', image=self.shirt)
@@ -92,8 +105,8 @@ class GUI:
         self.player_places.append(my_gui.place_for_user(self.players_name.get('7'), x_default + 0.6, y_default - 0.6))
         
     def set_card_one_player(self, position, suit1, name_card1, suit2, name_card2):
-        my_gui.player_places[1].get('card1').config(image=my_gui.get_image(suit1, name_card1))
-        my_gui.player_places[1].get('card2').config(image=my_gui.get_image(suit2, name_card2))
+        my_gui.player_places[position].get('card1').config(image=my_gui.get_image(suit1, name_card1))
+        my_gui.player_places[position].get('card2').config(image=my_gui.get_image(suit2, name_card2))
         
     def change_croupier(self, bank, suit, name_card):
         self.croupier.get('bank')['text'] = bank
@@ -112,15 +125,15 @@ class GUI:
         (self.player_places[position].get('check'))['state'] = status
         
     def change_bet_player(self,position, bet):
-        bank = (self.player_places[position].get('bank'))['text']
-        if (int(bank) - int(bet)) > 0:
-            (self.player_places[position].get('bet'))['text'] = bet
-        else:
-            bet = bank
-            (self.player_places[position].get('bet'))['text'] = bet
-            (self.player_places[position].get('bank'))['text'] = bank
-        if int(bank) > 0:
-            (self.player_places[position].get('bank'))['text'] = (int(bank) - int(bet))
+       # bank = (self.player_places[position].get('bank'))['text']
+       # if (int(bank) - int(bet)) > 0:
+        (self.player_places[position].get('bet'))['text'] = bet
+       # else:
+        #    bet = bank
+        #    (self.player_places[position].get('bet'))['text'] = bet
+        #    (self.player_places[position].get('bank'))['text'] = bank
+        #if int(bank) > 0:
+        #    (self.player_places[position].get('bank'))['text'] = (int(bank) - int(bet))
             
     def add_bank_player(self,position, summa):
         if summa > 0:

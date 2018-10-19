@@ -2,6 +2,9 @@ import threading
 import socket
 import pickle
 import random
+
+lim_players_for_run = 1
+
 """
 diamonds - бубны
 hearts - червы
@@ -71,7 +74,8 @@ class Table:
 		mast=["diamonds","hearts","spades","clubs"]
 		rol={11:"jack",12:"queen",13:"king",14:"ace"}
 		for i in range(0,4):
-			for y in range(1,15):
+			#for y in range(1, 15):
+			for y in range(2,15):
 					self.deck.append((y,mast[i]))
 		self.mix_deck()
 	"""
@@ -92,8 +96,10 @@ class Table:
 #==================================================================================		
 	def mix_deck(self):
 		#мешаем колоду
-		for i in range(0, 56):
-			rindex=random.randint(0,55)
+		#for i in range(0, 56):
+			#rindex=random.randint(0,55)
+		for i in range(0, 52):
+			rindex=random.randint(0,51)
 			temp=self.deck[i]
 			self.deck[i]=self.deck[rindex]
 			self.deck[rindex]=temp
@@ -175,7 +181,7 @@ class Table:
 			player.game_status="playing"
 		print("Game started")
 		self.update()
-		self.next_step();
+		self.next_step()
 	
 	def next_step(self):
 		i=0
@@ -192,17 +198,17 @@ class Table:
 			else:
 				i+=1
 		print("Ожидается ход игрока:",self.curr_step_pid)
-		self.send_all({'action':'step','id':self.curr_step_pid})
+		self.send_all({'action': 'step', 'id': self.curr_step_pid})
 	
 	def step(self,id,action):
 		#Тут нужно проянить , что передается в count`e от клиента
-		print("step",action['move'],action['move']=='rise')
+		print("step",action['move'],action['move']=='raise')
 		player=self.get_player_by_id(id)	
 		if player.id==self.curr_step_pid:#если у игрока есть право на ход то:
 			if action['move']=='call':
 				player.money-=(self.curr_bet-player.curr_bet)
 				player.curr_bet=self.curr_bet
-			elif action['move']=='rise':
+			elif action['move']=='raise':
 				self.curr_bet+=action['count']
 				if player.curr_bet==0:
 					player.money-=self.curr_bet
@@ -216,12 +222,13 @@ class Table:
 				#player.curr_bet=0
 				
 			self.update()
+
 			all_eq=True
 			#если ставки всех игроков одинаковые, то считаем банк и начинаем новый раунд торгов. если нет, то передаём ход дальше
 			for player in self.players:
 				print("curr_bet",player.curr_bet,self.curr_bet)
 				if player.curr_bet!=self.curr_bet:
-					all_eq=False
+					#all_eq=False
 					self.next_step()
 					break
 			#складываем ставки в банк, обнуляем ставки игроков, открываем карты
@@ -407,12 +414,12 @@ class Table:
 
 table1=Table() #создаём стол	
 def listen(name,conn):
-	print("Client connected:",name);
+	print("Client connected:",name)
 	player=table1.add_player(name, conn)
 	try:
 		table1.send(player, {'status':'ok', 'yourid':player.id}) 
 		#если игроков два и более, то расслылать приглашение для начала игры
-		if table1.get_count() > 1:
+		if table1.get_count() > lim_players_for_run:
 			table1.send_all({'action':'start?', 'players': table1.get_count()})
 		while True:
 			obj=pickle.loads(conn.recv(200))
@@ -448,7 +455,8 @@ if __name__=="__main__":
 		if len(name['name'])<10:
 			new_thread=threading.Thread(target=listen, args=(name["name"],conn))
 			new_thread.start()
-			threads[conn]=threading.Lock();
+			threads[conn]=threading.Lock()
 		else:
 			conn.send(pickle.dumps({'status':'err'}))
+			print('Closing ----------------------')
 			conn.close()

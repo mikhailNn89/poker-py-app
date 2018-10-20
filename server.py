@@ -3,7 +3,7 @@ import socket
 import pickle
 import random
 
-lim_players_for_run = 1
+lim_players_for_run = 2
 
 """
 diamonds - бубны
@@ -135,8 +135,8 @@ class Table:
 			self.create_game()
 	
 	def ready_to_play(self,player):
-		player.game_status="ready"
-		if self.check_status("ready",player):#все ли игроки получили начальные данные и готовы играть
+		player.game_status="playing"
+		if self.check_status("playing",player):#все ли игроки получили начальные данные и готовы играть
 			print("ready start")
 			self.start_game()
 				
@@ -178,7 +178,7 @@ class Table:
 				self.curr_bet=player.curr_bet
 				player.money-=player.curr_bet
 				curr_step_pid=id=player.id
-			player.game_status="playing"
+			#player.game_status="playing"
 		print("Game started")
 		self.update()
 		self.next_step()
@@ -209,30 +209,40 @@ class Table:
 				player.money-=(self.curr_bet-player.curr_bet)
 				player.curr_bet=self.curr_bet
 			elif action['move']=='raise':
+				player.curr_bet=100
+				self.curr_bet=100
+				"""
 				self.curr_bet+=action['count']
+				player.money-=action['count']
+				player.curr_bet+=action['count']
+				self.curr_bet+=player.curr_bet
+				
 				if player.curr_bet==0:
 					player.money-=self.curr_bet
 				else:
 					player.money-=action['count']
 				player.curr_bet=self.curr_bet
+				"""
 			elif action['move']=='fold':
 				player.game_status='folded'
 				#ставка складывается в банк и зануляется тут?
 				#self.bank+=player.curr_bet
 				#player.curr_bet=0
-				
+			else:
+				return 0 #выставь нормальную обработку ошибок, Ошибка: вместо raise передавалось rise, а игра продолжалась
 			self.update()
-
 			all_eq=True
 			#если ставки всех игроков одинаковые, то считаем банк и начинаем новый раунд торгов. если нет, то передаём ход дальше
 			for player in self.players:
 				print("curr_bet",player.curr_bet,self.curr_bet)
 				if player.curr_bet!=self.curr_bet:
-					#all_eq=False
+					all_eq=False
 					self.next_step()
 					break
+			
 			#складываем ставки в банк, обнуляем ставки игроков, открываем карты
-			if all_eq==True:
+			
+			if all_eq:
 				for player in self.players:
 					#Надо:Проверка, чтобы не обсчитывать игроков, которые вышли
 					self.bank+=player.curr_bet
@@ -242,20 +252,22 @@ class Table:
 					self.end_game()
 				else:
 					if self.round==1:
-						self.opened_cards=self.get_cards(3)
+						self.opened_cards+=self.get_cards(3)
 					elif self.round<4:
-						self.opened_cards=self.get_cards(1)
-					self.update()
+						self.opened_cards+=self.get_cards(1)
+					#self.update()#почему-то вызывает ошибку
 					self.next_step()
 					self.round+=1
-				
-	def end_game():
+				print("Начало раунда:",self.round)
+			
+	def end_game(self):
 		self.round=0
 		#Проверяем комбинации, определяем победителя. Их может быть несколько?
 		max_cmbn=""
 		plr=0 #игрок
+		"""
 		for player in self.players:
-			cmbn=check_combination(player.cards+self.opened_cards)
+			cmbn=self.check_combination(player.cards+self.opened_cards)
 			if self.combinations[cmbn]>self.combinations[max_cmbn]:
 				max_cmbn=cmbn
 				plr=player
@@ -266,6 +278,8 @@ class Table:
 			'winners':[plr.id] ,
 			'combination':max_cmbn
 		}
+		"""
+		print("end game")
 		self.bank=0	
 		#self.send_all(data)
 	
@@ -281,7 +295,7 @@ class Table:
 
 	def check_combination(self,lsp):
 		masti={
-			"heart":[],
+			"hearts":[],
 			"spades":[],
 			"diamonds":[],
 			"clubs":[]
@@ -294,23 +308,23 @@ class Table:
 				pair[lsp[i][0]]+=1
 			else:
 				pair[lsp[i][0]]=1
-		if is_royal_flush(masti):
+		if self.is_royal_flush(masti):
 			print("is_royal_flush")
-		elif is_straight_flush(masti):
+		elif self.is_straight_flush(masti):
 			print("is_straight_flush")
-		elif is_quads(pair):
+		elif self.is_quads(pair):
 			print("is_quads")
-		elif is_full_house(pair):
+		elif self.is_full_house(pair):
 			print("is_full_house")
-		elif is_flush(masti):
+		elif self.is_flush(masti):
 			print("is_flush")
-		elif is_straight(masti):
+		elif self.is_straight(masti):
 			print("is_straight")
-		elif is_set(pair):
+		elif self.is_set(pair):
 			print("is_set")
-		elif is_two_pairs(pair):
+		elif self.is_two_pairs(pair):
 			print("is_two_pairs")
-		elif is_one_pair(pair):
+		elif self.is_one_pair(pair):
 			print("is_one_pair")
 		else:
 			print("oldcard")#is_high_card(lsp))		
@@ -357,7 +371,7 @@ class Table:
 		return False
 			
 	def is_full_house(self,pair):
-		return is_one_pair(pair) and is_set(pair)
+		return self.is_one_pair(pair) and self.is_set(pair)
 
 	def is_flush(self,masti):
 		for i in masti:
@@ -419,7 +433,7 @@ def listen(name,conn):
 	try:
 		table1.send(player, {'status':'ok', 'yourid':player.id}) 
 		#если игроков два и более, то расслылать приглашение для начала игры
-		if table1.get_count() > lim_players_for_run:
+		if table1.get_count() >= lim_players_for_run:
 			table1.send_all({'action':'start?', 'players': table1.get_count()})
 		while True:
 			obj=pickle.loads(conn.recv(200))
@@ -436,6 +450,7 @@ def listen(name,conn):
 			elif obj['action']=="start?" and obj['answer']==True:
 				table1.wait_to_play(player)
 			elif obj['action']=="ok":
+				print(player.name,obj)
 				table1.ready_to_play(player)
 			
 			for i in threads:

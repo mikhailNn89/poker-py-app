@@ -8,6 +8,7 @@ class Client(object):
     def __init__(self):
         print('Hello Client')
         self.username=""
+        self.my_id=-1 #т.к id шники начинаются с нуля, то такой id - ошибка
         self.count_max_raise = 0
         self.is_connected=False
         self.my_socket = socket.socket()

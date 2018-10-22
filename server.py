@@ -40,9 +40,9 @@ class Player:
         self.game_status=""#playing\wait\folded\ready
         self.step=False #ход
     def get_money(self):
-        return money
+        return self.money
     def get_name(self):
-        return names
+        return self.name
 
 
 class Table:

@@ -158,7 +158,7 @@ class GUI:
     
     def whose_step(self,data):
         for i in self.player_places:
-            if i['id'] == data['id'] and i['id']!=self.client.my_id:
+            if i['id'] == data['id'] and i['id']!=self.client.get_id():
                 i['info']['text']="Ход"
                 break
     
@@ -174,11 +174,11 @@ class GUI:
     
     def raise_bet_click(self):
         for i in self.player_places:#забираем возможность делать ход
-            if i['id'] == self.client.my_id:
+            if i['id'] == self.client.get_id():
                 i['raise_bet']['state']='disable'
                 i['info']['text']=''
         for i in self.player_places:
-            if i['id'] == self.client.my_id:
+            if i['id'] == self.client.get_id():
                 self.client.step(('raise',int(i['curr_bet'].get())))#для теста
                 
 
@@ -202,14 +202,14 @@ class GUI:
             
     def allow_to_step(self):
         for i in self.player_places:#даем игроку возможность ходить. пока так 
-            if i['id'] == self.client.my_id:
+            if i['id'] == self.client.get_id():
                 i['raise_bet']['state']='normal'
                 i['info']['text']='Твой ход'
             else:
                 i['info']['text']=''
         
     def end_game(self,data):
-        if self.client.my_id==data['winners'][0]:
+        if self.client.get_id()==data['winners'][0]:
             for i in self.player_places:
                 if i['id'] == data['winners'][0]:
                     i['info']['text']= "Ты победил! "+data['combination']

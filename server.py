@@ -2,6 +2,7 @@ import threading
 import socket
 import pickle
 import random
+import time
 
 lim_players_for_run = 2
 
@@ -26,6 +27,7 @@ jack - валет
 
 #При call вычитает из денег клиента его ставку + максимальную ставку
 #Ошибки;игра начинается без получения "ок" от клиентов
+#		один пользователь может добавиться несколько раз
 class Player:
 	def __init__(self,id,name,conn):
 		self.id=id
@@ -48,10 +50,11 @@ class Table:
 		self.players=[]
 		self.count=0 #кол-во игроков
 		self.bank=0
+		self.game_started=False
+		self.is_updating=False
 		self.min_bet=100
 		self.curr_bet=0
 		self.round=0 #торговый раунд
-		self.next_round=False #можно ли начинать следующий раунд торгов. когда все ставки равны и пр.
 		self.deck=[] #колода
 		self.next_card=0 #номер следующей на выдачу карты в списке deck
 		self.bigblindid=0
@@ -72,14 +75,12 @@ class Table:
 		} 
 		#создание колоды
 		mast=["diamonds","hearts","spades","clubs"]
-		rol={11:"jack",12:"queen",13:"king",14:"ace"}
+		#просто памятка rol={11:"jack",12:"queen",13:"king",14:"ace"}
 		for i in range(0,4):
-			#for y in range(1, 15):
 			for y in range(2,15):
-					self.deck.append((y,mast[i]))
+				self.deck.append((y,mast[i]))
 		self.mix_deck()
 	"""
-	get_player_by_id() - возвращает объект Player
 	add_player(self, name, conn) - возвращает ссылку на добавленного игрока
 	"""		
 #==================================================================================
@@ -89,15 +90,10 @@ class Table:
 	def get_bank(sel):
 		return self.bank
 
-	def get_player_by_id(self, id):	
-		for player in self.players:
-			if player.id==id:
-				return player
+
 #==================================================================================		
 	def mix_deck(self):
 		#мешаем колоду
-		#for i in range(0, 56):
-			#rindex=random.randint(0,55)
 		for i in range(0, 52):
 			rindex=random.randint(0,51)
 			temp=self.deck[i]
@@ -119,35 +115,35 @@ class Table:
 		player.conn.send(pickle.dumps(data))
 
 	def check_status(self,status,player):
-	#использовать блокировку потоков тут?
-		flag=True
 		for player in self.players:
 			print(1,player.game_status,status,player.game_status!=status)
 			if player.game_status!=status:
-				flag=False
-				break
-		return flag
+				return False
+				#break
+		return True
 		
 	def wait_to_play(self,player):
 		player.game_status="wait"
 		if self.check_status("wait",player):
-			print("Create?")
+			print("Create")
 			self.create_game()
 	
 	def ready_to_play(self,player):
 		player.game_status="playing"
 		if self.check_status("playing",player):#все ли игроки получили начальные данные и готовы играть
-			print("ready start")
 			self.start_game()
 				
 	def update(self):
 		#один игрок сделал шаг и оповещение отсылается всем
-		gamers=[]
-		for player in self.players:
-			gamers.append((player.id,player.curr_bet,player.money))
-		#переосмыслить to_rise
-		upd={'action':"update",'bank':self.bank,'gamers':gamers,'to_raise':100,'open_cards':self.opened_cards}
-		self.send_all(upd)
+		if self.is_updating==False: #т.к вызывалось слишко часто и бились данные.пока так
+			self.is_updating=True
+			gamers=[]
+			for player in self.players:
+				gamers.append((player.id,player.curr_bet,player.money,player.name))
+			#переосмыслить to_rise. это поле не нужно?
+			upd={'action':"update",'bank':self.bank,'gamers':gamers,'to_raise':100,'open_cards':self.opened_cards}
+			self.send_all(upd)
+			self.is_updating=False
 
 	def create_game(self):
 		#Если все игроки готовы играть, то рассылаем начальные данные
@@ -178,12 +174,13 @@ class Table:
 				self.curr_bet=player.curr_bet
 				player.money-=player.curr_bet
 				curr_step_pid=id=player.id
-			#player.game_status="playing"
 		print("Game started")
+		self.game_started=True
 		self.update()
 		self.next_step()
 	
 	def next_step(self):
+		#ход передается просто по кругу или каждый раунд один и тот же игрок?
 		i=0
 		flag=False
 		while True:
@@ -200,88 +197,82 @@ class Table:
 		print("Ожидается ход игрока:",self.curr_step_pid)
 		self.send_all({'action': 'step', 'id': self.curr_step_pid})
 	
-	def step(self,id,action):
-		#Тут нужно проянить , что передается в count`e от клиента
+	def step(self,player,action):
 		print("step",action['move'],action['move']=='raise')
-		player=self.get_player_by_id(id)	
 		if player.id==self.curr_step_pid:#если у игрока есть право на ход то:
 			if action['move']=='call':
 				player.money-=(self.curr_bet-player.curr_bet)
 				player.curr_bet=self.curr_bet
 			elif action['move']=='raise':
-				player.curr_bet=100
-				self.curr_bet=100
-				"""
-				self.curr_bet+=action['count']
 				player.money-=action['count']
 				player.curr_bet+=action['count']
-				self.curr_bet+=player.curr_bet
-				
-				if player.curr_bet==0:
-					player.money-=self.curr_bet
-				else:
-					player.money-=action['count']
-				player.curr_bet=self.curr_bet
-				"""
+				if player.curr_bet > self.curr_bet:
+					self.curr_bet = player.curr_bet
 			elif action['move']=='fold':
 				player.game_status='folded'
-				#ставка складывается в банк и зануляется тут?
-				#self.bank+=player.curr_bet
-				#player.curr_bet=0
+				self.bank+=player.curr_bet
+				player.curr_bet=0
+			elif action['move']=='check':
+				pass
 			else:
-				return 0 #выставь нормальную обработку ошибок, Ошибка: вместо raise передавалось rise, а игра продолжалась
+				return 1 #выставь нормальную обработку ошибок, Ошибка: вместо raise передавалось rise, а игра продолжалась
+				
+	def calc_bank(self):
+		for player in self.players:
+			if player.game_status=="playing":
+				self.bank+=player.curr_bet
+				player.curr_bet=0
+		self.curr_bet=0
+				
+	def next_round(self):
+		self.calc_bank()
+		if self.round==4:
+			#self.update()
+			self.end_game()
+		else:
+			if self.round==1:
+				self.opened_cards+=self.get_cards(3)
+			elif self.round<4:
+				self.opened_cards+=self.get_cards(1)
+			self.round+=1
 			self.update()
-			all_eq=True
-			#если ставки всех игроков одинаковые, то считаем банк и начинаем новый раунд торгов. если нет, то передаём ход дальше
-			for player in self.players:
-				print("curr_bet",player.curr_bet,self.curr_bet)
-				if player.curr_bet!=self.curr_bet:
-					all_eq=False
-					self.next_step()
-					break
+			self.next_step()
+			print("Начало раунда:",self.round)
 			
-			#складываем ставки в банк, обнуляем ставки игроков, открываем карты
-			
-			if all_eq:
-				for player in self.players:
-					#Надо:Проверка, чтобы не обсчитывать игроков, которые вышли
-					self.bank+=player.curr_bet
-					player.curr_bet=0
-				if self.round==4:
-					self.update()
-					self.end_game()
-				else:
-					if self.round==1:
-						self.opened_cards+=self.get_cards(3)
-					elif self.round<4:
-						self.opened_cards+=self.get_cards(1)
-					#self.update()#почему-то вызывает ошибку
-					self.next_step()
-					self.round+=1
-				print("Начало раунда:",self.round)
-			
+	def check_bets(self):
+		for player in self.players:
+			print("curr_bet",player.curr_bet,self.curr_bet)
+			if player.curr_bet!=self.curr_bet:
+				return False
+		return True
+
 	def end_game(self):
 		self.round=0
 		#Проверяем комбинации, определяем победителя. Их может быть несколько?
-		max_cmbn=""
+		max_cmbn="high_card"
 		plr=0 #игрок
-		"""
 		for player in self.players:
 			cmbn=self.check_combination(player.cards+self.opened_cards)
-			if self.combinations[cmbn]>self.combinations[max_cmbn]:
+			if self.combinations[cmbn]>=self.combinations[max_cmbn]:
 				max_cmbn=cmbn
 				plr=player
+		print(plr.name,max_cmbn)
 		plr.money=self.bank			
 		data={
 			'action':'end',
 			'players':[(plr.id,plr.cards+self.opened_cards)],
-			'winners':[plr.id] ,
+			'winners':[plr.id,plr.name] ,
 			'combination':max_cmbn
 		}
-		"""
+		
+		
 		print("end game")
 		self.bank=0	
-		#self.send_all(data)
+		dmp=pickle.dumps(data)
+		udmp=pickle.loads(dmp)
+		print(data, dmp, udmp)
+		#time.sleep(3) 
+		self.send_all(data)
 	
 	def get_cards(self, count):
 		cards=[]
@@ -309,26 +300,27 @@ class Table:
 			else:
 				pair[lsp[i][0]]=1
 		if self.is_royal_flush(masti):
-			print("is_royal_flush")
+			combination="royal_flush"
 		elif self.is_straight_flush(masti):
-			print("is_straight_flush")
+			combination="straight_flush"
 		elif self.is_quads(pair):
-			print("is_quads")
+			combination="quads"
 		elif self.is_full_house(pair):
-			print("is_full_house")
+			combination="full_house"
 		elif self.is_flush(masti):
-			print("is_flush")
+			combination="flush"
 		elif self.is_straight(masti):
-			print("is_straight")
+			combination="straight"
 		elif self.is_set(pair):
-			print("is_set")
+			combination="set"
 		elif self.is_two_pairs(pair):
-			print("is_two_pairs")
+			combination="two_pairs"
 		elif self.is_one_pair(pair):
-			print("is_one_pair")
+			combination="one_pair"
 		else:
-			print("oldcard")#is_high_card(lsp))		
-		
+			combination="high_card"#is_high_card(lsp))		
+		return combination
+			
 	def is_royal_flush(self,masti):
 		royal_flush=False
 		for i in masti:
@@ -425,7 +417,17 @@ class Table:
 				imax=i[0]
 				card=i
 		return card
-
+	
+	def abort_game(self):
+		self.count=0
+		self.bank=0
+		self.game_started=False
+		self.curr_bet=0
+		self.round=0
+		self.next_card=0 #номер следующей на выдачу карты в списке deck
+		self.bigblindid=0
+		self.opened_cards=[]
+		self.curr_step_pid=0
 table1=Table() #создаём стол	
 def listen(name,conn):
 	print("Client connected:",name)
@@ -443,10 +445,14 @@ def listen(name,conn):
 				if player.conn!=i:	
 					threads[i].acquire(blocking=True)
 			
-			if obj['action']=="move":
-				table1.step(player.id,obj)
-			elif obj['action']=="fold":
-				print("Fold")
+			if obj['action']=="move" and table1.game_started:
+				table1.step(player,obj)
+				#если ставки всех игроков одинаковые, то считаем банк и начинаем новый раунд торгов. если нет, то передаём ход дальше
+				if table1.check_bets()==False:
+					table1.update()
+					table1.next_step()
+				else:
+					table1.next_round()
 			elif obj['action']=="start?" and obj['answer']==True:
 				table1.wait_to_play(player)
 			elif obj['action']=="ok":
@@ -458,6 +464,10 @@ def listen(name,conn):
 					threads[i].release()
 			
 	except(ConnectionResetError):
+		table1.abort_game()
+		for i in range(0,len(table1.players)-1):
+			if player.id==table1.players[i].id:
+				del table1.players[i]
 		print("Соединение с клиентом потеряно",player.name)
 threads={}
 if __name__=="__main__":

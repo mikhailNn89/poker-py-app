@@ -79,7 +79,7 @@ class Table:
         for i in range(0,4):
             for y in range(2,15):
                 self.deck.append((y,mast[i]))
-        self.mix_deck()
+        
     """
     add_player(self, name, conn) - возвращает ссылку на добавленного игрока
     """        
@@ -148,6 +148,7 @@ class Table:
     def create_game(self):
         #Если все игроки готовы играть, то рассылаем начальные данные
         #вынести выбор блайндов в отдельную функцию?
+        self.mix_deck()
         self.bigblindid = self.players[0].id
         for player in self.players:
             if player.game_status!="ready":
@@ -227,8 +228,8 @@ class Table:
     def next_round(self):
         self.calc_bank()
         if self.round==4:
-            #self.update()
             self.end_game()
+            #self.update()
         else:
             if self.round==1:
                 self.opened_cards+=self.get_cards(3)
@@ -257,7 +258,7 @@ class Table:
                 max_cmbn=cmbn
                 plr=player
         print(plr.name,max_cmbn)
-        plr.money=self.bank            
+        plr.money+=self.bank            
         data={
             'action':'end',
             'players':[(plr.id,plr.cards+self.opened_cards)],
@@ -265,14 +266,25 @@ class Table:
             'combination':max_cmbn
         }
         
-        
+        self.bank=0
+        self.update()
         print("end game")
-        self.bank=0    
-        dmp=pickle.dumps(data)
-        udmp=pickle.loads(dmp)
-        print(data, dmp, udmp)
-        #time.sleep(3) 
+        #time.sleep(3)
         self.send_all(data)
+        self.next_card=0 #номер следующей на выдачу карты в списке deck
+        #self.bigblindid=0
+        self.curr_step_pid=0 #id игрока, которые в данный момент может делать ход 
+        self.opened_cards=[]
+        self.game_started=False
+        for player in self.players:
+            player.cards=[]
+            player.curr_bet=0
+            player.bigblind=False
+            player.game_status=""
+            player.step=False 
+        if table1.get_count() >= lim_players_for_run:
+            self.invite_to_play()
+        
     
     def get_cards(self, count):
         cards=[]
@@ -417,7 +429,10 @@ class Table:
                 imax=i[0]
                 card=i
         return card
-    
+        
+    def invite_to_play(self):
+        self.send_all({'action':'start?', 'players': table1.get_count()})
+        
     def abort_game(self):
         self.count=0
         self.bank=0
@@ -436,7 +451,7 @@ def listen(name,conn):
         table1.send(player, {'status':'ok', 'yourid':player.id}) 
         #если игроков два и более, то расслылать приглашение для начала игры
         if table1.get_count() >= lim_players_for_run:
-            table1.send_all({'action':'start?', 'players': table1.get_count()})
+            table1.invite_to_play()
         while True:
             obj=pickle.loads(conn.recv(200))
             print(obj)
